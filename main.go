@@ -6,11 +6,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	port       = ":8080"
+	staticPath = "./frontend/build"
+)
+
 func main() {
-	fs := http.FileServer(http.Dir("./frontend"))
+	fs := http.FileServer(http.Dir(staticPath))
 
 	http.Handle("/", fs)
 
-	log.Println("Listening on :3000...")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Printf("Listening on %s...", port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }
