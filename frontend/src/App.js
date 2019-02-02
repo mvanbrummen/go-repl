@@ -17,6 +17,10 @@ export default class App extends Component {
   executeCodeSubmit = (e) => {
     e.preventDefault();
 
+    this.setState({
+      result: "Executing program..."
+    });
+
     executeCode(this.state.editorValue).then((resp) => {
       console.log(resp.result)
       this.setState({
@@ -32,12 +36,12 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    // getVersion().then((v) => {
-    //   console.log(v);
-    //   this.setState({
-    //     result: [v.result]
-    //   });
-    // });
+    getVersion().then((v) => {
+      console.log(v);
+      this.setState({
+        result: v.result
+      });
+    });
   }
 
   onChange = (value, e) => {
