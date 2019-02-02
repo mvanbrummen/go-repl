@@ -62,6 +62,16 @@ func runCode(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(NewCodeResponse(string(out)))
 }
 
+func getVersion(w http.ResponseWriter, r *http.Request) {
+	out, err := exec.Command("go", "version").Output()
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(NewCodeResponse(string(out)))
+}
+
 func main() {
 	os.Mkdir(tmpDir, os.ModePerm)
 
@@ -69,6 +79,7 @@ func main() {
 
 	http.Handle("/", fs)
 	http.HandleFunc("/code", runCode)
+	http.HandleFunc("/version", getVersion)
 
 	log.Printf("Listening on %s...", port)
 	log.Fatal(http.ListenAndServe(port, nil))
