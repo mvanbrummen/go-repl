@@ -6,6 +6,11 @@ import { split as SplitEditor } from 'react-ace';
 import { FaPlay } from 'react-icons/fa';
 
 export default class App extends Component {
+
+  onCopy(value) {
+    console.log(value);
+  }
+
   render() {
     return (
       <div className="editor">
@@ -18,6 +23,7 @@ export default class App extends Component {
           name="replEditor"
           editorProps={{ $blockScrolling: true }}
           splits={2}
+          onCopy={this.onCopy}
           orientation="besides"
           width="100%"
           height="600px"
