@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -14,11 +12,26 @@ import (
 const (
 	port       = ":8080"
 	staticPath = "./frontend/build"
-	tmpDir     = "./.gorepl"
+)
+
+type Language int
+
+func (l Language) String() string {
+	languages := []string{
+		"golang",
+		"ruby",
+	}
+	return languages[l]
+}
+
+const (
+	Golang Language = iota
+	Ruby
 )
 
 type CodeRequest struct {
-	Code string `json:"code"`
+	Language string `json:"language"`
+	Code     string `json:"code"`
 }
 
 type CodeResponse struct {
@@ -44,27 +57,46 @@ func runCode(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	tmpFile := fmt.Sprintf("%s/main.go", tmpDir)
-
-	err = ioutil.WriteFile(tmpFile, []byte(req.Code), 0644)
+	executor, err := getExecutor(req.Language)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	out, _ := exec.Command("go", "run", tmpFile).CombinedOutput()
+	result, err := executor.Execute(req.Code)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(NewCodeResponse(string(out)))
+	json.NewEncoder(w).Encode(NewCodeResponse(result))
 }
 
 func getVersion(w http.ResponseWriter, r *http.Request) {
-	out, err := exec.Command("go", "version").Output()
+	lang := r.URL.Query().Get("lang")
+	executor, err := getExecutor(lang)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(NewCodeResponse(string(out)))
+	version, _ := executor.Version()
+	json.NewEncoder(w).Encode(NewCodeResponse(version))
+}
+
+func getExecutor(lang string) (Executor, error) {
+	var executor Executor
+
+	switch lang {
+	case Golang.String():
+		executor = NewGoExecutor()
+	case Ruby.String():
+		executor = NewRubyExecutor()
+	default:
+		return nil, fmt.Errorf("Unsupport lanaguage: %s", lang)
+	}
+
+	return executor, nil
 }
 
 func main() {

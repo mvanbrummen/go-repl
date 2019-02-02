@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import brace from 'brace';
 import 'brace/mode/golang';
+import 'brace/mode/ruby';
 import 'brace/mode/text';
 import 'brace/theme/solarized_dark';
 import 'brace/theme/terminal';
@@ -8,10 +9,16 @@ import AceEditor from 'react-ace';
 import { FaPlay, FaTimes } from 'react-icons/fa';
 import { getVersion, executeCode } from './util/Gateway'
 
+const langauges = [
+  "golang",
+  "ruby"
+];
+
 export default class App extends Component {
   state = {
     editorValue: "",
-    result: ""
+    result: "",
+    language: langauges[0]
   }
 
   executeCodeSubmit = (e) => {
@@ -21,7 +28,7 @@ export default class App extends Component {
       result: "Executing program..."
     });
 
-    executeCode(this.state.editorValue).then((resp) => {
+    executeCode(this.state.language, this.state.editorValue).then((resp) => {
       console.log(resp.result)
       this.setState({
         result: resp.result
@@ -36,8 +43,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    getVersion().then((v) => {
-      console.log(v);
+    getVersion(this.state.language).then((v) => {
       this.setState({
         result: v.result
       });
@@ -50,6 +56,16 @@ export default class App extends Component {
     });
   }
 
+  onLanguageChange = (e) => {
+    let language = e.target.value;
+    getVersion(language).then((v) => {
+      this.setState({
+        result: v.result,
+        language: language
+      });
+    });
+  }
+
   render() {
     return (
       <div className="editor">
@@ -57,11 +73,18 @@ export default class App extends Component {
           <h1 className="brand">gorepl</h1>
           <button className="site" id="playBtn" onClick={this.executeCodeSubmit}><FaPlay /></button>
           <button id="clearBtn" className="site" onClick={this.clearEditor}><FaTimes /></button>
+          <select onChange={this.onLanguageChange}>
+            {
+              langauges.map((language, i) =>
+                <option key={i} value={language}>{language}</option>
+              )
+            }
+          </select>
         </div>
 
         <AceEditor
           theme="solarized_dark"
-          mode="golang"
+          mode={this.state.language}
           name="replEditor"
           fontSize={16}
           editorProps={{ $blockScrolling: true }}

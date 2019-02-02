@@ -2,9 +2,10 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:8080';
 
-export function executeCode(code) {
+export function executeCode(language, code) {
     const url = `${BASE_URL}/code`;
     return axios.post(url, {
+        language: language,
         code: code
     }, {
             headers: {
@@ -14,7 +15,7 @@ export function executeCode(code) {
         .catch(e => alert(e));
 }
 
-export function getVersion() {
-    const url = `${BASE_URL}/version`;
+export function getVersion(language) {
+    const url = `${BASE_URL}/version?lang=${language}`;
     return axios.get(url).then(resp => resp.data);
 }
