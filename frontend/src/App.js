@@ -73,7 +73,7 @@ export default class App extends Component {
           editorProps={{ $blockScrolling: true }}
           value={this.state.result}
           width="100%"
-          height="200px"
+          height="250px"
           readOnly={true}
           highlightActiveLine={false}
           fontSize={16}
