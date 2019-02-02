@@ -91,6 +91,29 @@ func (*PythonExecutor) Version() (string, error) {
 	return executeCommand("python", "-V")
 }
 
+type JavaExecutor struct{}
+
+func NewJavaExecutor() *JavaExecutor {
+	return &JavaExecutor{}
+}
+
+func (*JavaExecutor) Execute(code string) (string, error) {
+	tmpFile, err := writeTmpFile(code, "Main.java")
+
+	if err != nil {
+		return "", err
+	}
+	_, err = executeCommand("javac", tmpFile)
+	if err != nil {
+		return "", err
+	}
+	return executeCommand("java", "-cp", tmpDir, "Main")
+}
+
+func (*JavaExecutor) Version() (string, error) {
+	return executeCommand("java", "-version")
+}
+
 func executeCommand(name string, args ...string) (string, error) {
 	out, err := exec.Command(name, args...).CombinedOutput()
 	if err != nil {

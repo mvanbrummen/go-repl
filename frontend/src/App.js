@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import brace from 'brace';
 import 'brace/mode/golang';
 import 'brace/mode/ruby';
+import 'brace/mode/java';
 import 'brace/mode/javascript';
 import 'brace/mode/python';
 import 'brace/mode/text';
@@ -16,7 +17,16 @@ const langauges = [
   "ruby",
   "javascript",
   "python",
+  "java",
 ];
+
+const javaDefault = `
+public class Main {
+  public static void main(String[] args) {
+      System.out.println("Hello, World!");
+  }
+}
+`;
 
 export default class App extends Component {
   state = {
@@ -62,8 +72,14 @@ export default class App extends Component {
 
   onLanguageChange = (e) => {
     let language = e.target.value;
+
+    let editorValue = this.state.editorValue;
+    if (language === "java") {
+        editorValue = javaDefault;
+    }
     getVersion(language).then((v) => {
       this.setState({
+        editorValue: editorValue,
         result: v.result,
         language: language
       });

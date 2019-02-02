@@ -22,6 +22,7 @@ func (l Language) String() string {
 		"ruby",
 		"javascript",
 		"python",
+		"java",
 	}
 	return languages[l]
 }
@@ -31,6 +32,7 @@ const (
 	Ruby
 	JavaScript
 	Python
+	Java
 )
 
 type CodeRequest struct {
@@ -100,6 +102,8 @@ func getExecutor(lang string) (Executor, error) {
 		executor = NewJavascriptExecutor()
 	case Python.String():
 		executor = NewPythonExecutor()
+	case Java.String():
+		executor = NewJavaExecutor()
 	default:
 		return nil, fmt.Errorf("Unsupport lanaguage: %s", lang)
 	}
