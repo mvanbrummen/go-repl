@@ -46,17 +46,12 @@ func runCode(w http.ResponseWriter, r *http.Request) {
 
 	tmpFile := fmt.Sprintf("%s/main.go", tmpDir)
 
-	log.Println(req.Code)
-
 	err = ioutil.WriteFile(tmpFile, []byte(req.Code), 0644)
 	if err != nil {
 		panic(err)
 	}
 
-	out, err := exec.Command("go", "run", tmpFile).Output()
-	if err != nil {
-		panic(err)
-	}
+	out, _ := exec.Command("go", "run", tmpFile).CombinedOutput()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewCodeResponse(string(out)))
