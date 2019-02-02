@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os/exec"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const tmpDir = "./.gorepl"
@@ -19,7 +21,7 @@ func NewGoExecutor() *GoExecutor {
 	return &GoExecutor{}
 }
 
-func (e *GoExecutor) Execute(code string) (string, error) {
+func (*GoExecutor) Execute(code string) (string, error) {
 	tmpFile, err := writeTmpFile(code, "main.go")
 
 	if err != nil {
@@ -38,7 +40,7 @@ func NewRubyExecutor() *RubyExecutor {
 	return &RubyExecutor{}
 }
 
-func (e *RubyExecutor) Execute(code string) (string, error) {
+func (*RubyExecutor) Execute(code string) (string, error) {
 	tmpFile, err := writeTmpFile(code, "tmp.rb")
 
 	if err != nil {
@@ -47,14 +49,52 @@ func (e *RubyExecutor) Execute(code string) (string, error) {
 	return executeCommand("ruby", tmpFile)
 }
 
-func (e *RubyExecutor) Version() (string, error) {
+func (*RubyExecutor) Version() (string, error) {
 	return executeCommand("ruby", "-v")
 }
 
-func executeCommand(name string, args ...string) (string, error) {
-	out, err := exec.Command(name, args...).Output()
+type JavascriptExecutor struct{}
+
+func NewJavascriptExecutor() *JavascriptExecutor {
+	return &JavascriptExecutor{}
+}
+
+func (*JavascriptExecutor) Execute(code string) (string, error) {
+	tmpFile, err := writeTmpFile(code, "tmp.js")
+
 	if err != nil {
 		return "", err
+	}
+	return executeCommand("node", tmpFile)
+}
+
+func (*JavascriptExecutor) Version() (string, error) {
+	return executeCommand("node", "--version")
+}
+
+type PythonExecutor struct{}
+
+func NewPythonExecutor() *PythonExecutor {
+	return &PythonExecutor{}
+}
+
+func (*PythonExecutor) Execute(code string) (string, error) {
+	tmpFile, err := writeTmpFile(code, "tmp.py")
+
+	if err != nil {
+		return "", err
+	}
+	return executeCommand("python", tmpFile)
+}
+
+func (*PythonExecutor) Version() (string, error) {
+	return executeCommand("python", "-V")
+}
+
+func executeCommand(name string, args ...string) (string, error) {
+	out, err := exec.Command(name, args...).CombinedOutput()
+	if err != nil {
+		log.Error(err)
 	}
 
 	return string(out), nil

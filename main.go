@@ -20,6 +20,8 @@ func (l Language) String() string {
 	languages := []string{
 		"golang",
 		"ruby",
+		"javascript",
+		"python",
 	}
 	return languages[l]
 }
@@ -27,6 +29,8 @@ func (l Language) String() string {
 const (
 	Golang Language = iota
 	Ruby
+	JavaScript
+	Python
 )
 
 type CodeRequest struct {
@@ -63,10 +67,7 @@ func runCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := executor.Execute(req.Code)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	result, _ := executor.Execute(req.Code)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(NewCodeResponse(result))
@@ -80,7 +81,10 @@ func getVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	version, _ := executor.Version()
+	version, err := executor.Version()
+	if err != nil {
+		log.Error(err)
+	}
 	json.NewEncoder(w).Encode(NewCodeResponse(version))
 }
 
@@ -92,6 +96,10 @@ func getExecutor(lang string) (Executor, error) {
 		executor = NewGoExecutor()
 	case Ruby.String():
 		executor = NewRubyExecutor()
+	case JavaScript.String():
+		executor = NewJavascriptExecutor()
+	case Python.String():
+		executor = NewPythonExecutor()
 	default:
 		return nil, fmt.Errorf("Unsupport lanaguage: %s", lang)
 	}

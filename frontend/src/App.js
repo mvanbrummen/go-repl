@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import brace from 'brace';
 import 'brace/mode/golang';
 import 'brace/mode/ruby';
+import 'brace/mode/javascript';
+import 'brace/mode/python';
 import 'brace/mode/text';
 import 'brace/theme/solarized_dark';
 import 'brace/theme/terminal';
@@ -11,7 +13,9 @@ import { getVersion, executeCode } from './util/Gateway'
 
 const langauges = [
   "golang",
-  "ruby"
+  "ruby",
+  "javascript",
+  "python",
 ];
 
 export default class App extends Component {
