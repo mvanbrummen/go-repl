@@ -32,12 +32,12 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    getVersion().then((v) => {
-      console.log(v);
-      this.setState({
-        result: [v.result]
-      });
-    });
+    // getVersion().then((v) => {
+    //   console.log(v);
+    //   this.setState({
+    //     result: [v.result]
+    //   });
+    // });
   }
 
   onChange = (value, e) => {
@@ -49,9 +49,11 @@ export default class App extends Component {
   render() {
     return (
       <div className="editor">
-        <h1 className="brand">gorepl</h1>
-        <button id="playBtn" onClick={this.executeCodeSubmit}><FaPlay /></button>
-        <button id="clearBtn" onClick={this.clearEditor}><FaTimes /></button>
+        <div className="container">
+          <h1 className="brand">gorepl</h1>
+          <button className="site" id="playBtn" onClick={this.executeCodeSubmit}><FaPlay /></button>
+          <button id="clearBtn" className="site" onClick={this.clearEditor}><FaTimes /></button>
+        </div>
 
         <AceEditor
           theme="solarized_dark"
